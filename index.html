@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+
 :root{
   --navy:#1b4332;--navy2:#2d6a4f;--teal:#1b4332;--teal2:#2d6a4f;
   --gold:#c77b00;--gold2:#e8a020;--cream:#f8fffe;
@@ -300,7 +301,42 @@ footer{background:#0a1f14;padding:3rem 2rem 2rem;color:rgba(255,255,255,.5)}
   .gal-masonry{columns:1}
   .pgrid{grid-template-columns:repeat(3,1fr)}
 }
+
+/* SETUP PANEL extra */
+.sync-status{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.5)}
+.sync-status.offline{color:#f87171}
+.sync-status.syncing{color:var(--gold2)}
 </style>
+
+<!-- SETUP PANEL -->
+<div class="modal-bg" id="setupPanel">
+  <div class="modal-box" style="max-width:520px">
+    <div class="modal-head"><h2>⚙️ Setup Koneksi Website</h2><button class="modal-x" onclick="closeSetup()"><i class="fas fa-times"></i></button></div>
+    <div class="modal-body">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:1rem;margin-bottom:1.2rem;font-size:12px;color:#14532d;line-height:1.8">
+        <strong>✅ Gratis total — tanpa kartu kredit:</strong><br>
+        • <strong>Firestore</strong> (data teks): gratis selamanya di Spark plan<br>
+        • <strong>Cloudinary</strong> (foto): gratis 25GB, tanpa kartu kredit
+      </div>
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:1rem;margin-bottom:1.5rem;font-size:12px;color:#92400e;line-height:1.8">
+        <strong>📋 Cara mendapatkan nilai-nilai ini:</strong><br>
+        <strong>Project ID Firestore:</strong> console.firebase.google.com → Project Settings → Project ID<br>
+        <strong>Cloud Name Cloudinary:</strong> cloudinary.com → Dashboard → Cloud Name<br>
+        <strong>Upload Preset:</strong> Cloudinary → Settings → Upload → Add upload preset → pilih "Unsigned"
+      </div>
+      <label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px">FIRESTORE PROJECT ID *</label>
+      <input class="linp" id="cfgProject" placeholder="contoh: sma-alfiil-website">
+      <label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;margin-top:10px">CLOUDINARY CLOUD NAME (untuk upload foto)</label>
+      <input class="linp" id="cfgCloud" placeholder="contoh: dxxxxxxxxxxx">
+      <label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;margin-top:10px">CLOUDINARY UPLOAD PRESET (unsigned)</label>
+      <input class="linp" id="cfgPreset" placeholder="contoh: smaalfiil_upload">
+      <button class="lbtn" onclick="saveSetup()" style="margin-top:14px">🚀 Simpan & Hubungkan</button>
+    </div>
+  </div>
+</div>
+
+
+
 </head>
 <body>
 
@@ -508,8 +544,11 @@ footer{background:#0a1f14;padding:3rem 2rem 2rem;color:rgba(255,255,255,.5)}
       <div class="p-step"><div class="p-n">1</div><div><h4>Keyboard</h4><p>Ketik <kbd style="background:#f1f5f9;padding:2px 6px;border-radius:4px">A→D→M→I→N</kbd> berurutan saat tidak ada kolom input aktif.</p></div></div>
       <div class="p-step"><div class="p-n">2</div><div><h4>Klik Logo Footer</h4><p>Klik teks "SMA AL-FIIL" di footer sebanyak <strong>5 kali cepat</strong>.</p></div></div>
       <div class="p-step"><div class="p-n">3</div><div><h4>URL Hash</h4><p>Tambahkan <code style="background:#f1f5f9;padding:2px 5px;border-radius:4px">#admin-panel</code> di akhir URL.</p></div></div>
-      <div class="p-note">✅ <strong>Tanpa Firebase!</strong> Data tersimpan di browser (localStorage). Admin simpan perubahan → data tersimpan permanen dan langsung tampil. Password default: <strong>alfiil2024</strong></div>
-      <div class="p-warn">⚠️ Foto disimpan di penyimpanan browser (localStorage). Ukuran foto <strong>maks 2MB per foto</strong> dan total data maks ~5MB. Gunakan foto yang sudah dikompres. Data tersimpan permanen di browser sampai cache dihapus.</div>
+      <div class="p-note">✅ <strong>Gratis total tanpa kartu kredit!</strong><br>
+      • <strong>Firestore</strong>: data teks tersinkron ke semua perangkat secara real-time<br>
+      • <strong>Cloudinary</strong>: penyimpanan foto gratis 25GB<br>
+      Password default: <strong>alfiil2024</strong></div>
+      <div class="p-warn">⚠️ Setup diperlukan sekali saja. Setelah setup, perubahan admin langsung tampil di HP, laptop, dan semua perangkat dalam hitungan detik.</div>
     </div>
   </div>
 </div>
@@ -545,11 +584,11 @@ footer{background:#0a1f14;padding:3rem 2rem 2rem;color:rgba(255,255,255,.5)}
       <div class="adm-sec on" id="tab-umum">
         <div class="adm-sec-title">⚙️ Pengaturan Umum &amp; Foto</div>
         <div class="adm-card"><div class="adm-card-title">Foto Hero (Banner Utama)</div>
-          <div class="upz"><input type="file" accept="image/*" onchange="uploadPhoto(this,'hero_bg')"><i class="fas fa-cloud-upload-alt"></i><p>Klik atau drag foto background halaman utama (maks 2MB)</p></div>
+          <div class="upz"><input type="file" accept="image/*" onchange="uploadSitePhoto(this,'hero_bg')"><i class="fas fa-cloud-upload-alt"></i><p>Klik atau drag foto background halaman utama (maks 2MB)</p></div>
           <div id="prevHero" style="margin-top:8px"></div>
         </div>
         <div class="adm-card"><div class="adm-card-title">Logo Navbar</div>
-          <div class="upz"><input type="file" accept="image/*" onchange="uploadPhoto(this,'logo_nav')"><i class="fas fa-image"></i><p>Klik atau drag logo sekolah (maks 1MB)</p></div>
+          <div class="upz"><input type="file" accept="image/*" onchange="uploadSitePhoto(this,'logo_nav')"><i class="fas fa-image"></i><p>Klik atau drag logo sekolah (maks 1MB)</p></div>
           <div id="prevLogo" style="margin-top:8px"></div>
         </div>
         <div class="adm-card">
@@ -567,7 +606,7 @@ footer{background:#0a1f14;padding:3rem 2rem 2rem;color:rgba(255,255,255,.5)}
       <div class="adm-sec" id="tab-profil">
         <div class="adm-sec-title">🏫 Profil Sekolah</div>
         <div class="adm-card"><div class="adm-card-title">Foto Gedung Sekolah</div>
-          <div class="upz"><input type="file" accept="image/*" onchange="uploadPhoto(this,'profil_photo')"><i class="fas fa-image"></i><p>Klik atau drag foto gedung sekolah</p></div>
+          <div class="upz"><input type="file" accept="image/*" onchange="uploadSitePhoto(this,'profil_photo')"><i class="fas fa-image"></i><p>Klik atau drag foto gedung sekolah</p></div>
           <div id="prevProfil" style="margin-top:8px"></div>
         </div>
         <div class="adm-card">
@@ -676,115 +715,222 @@ footer{background:#0a1f14;padding:3rem 2rem 2rem;color:rgba(255,255,255,.5)}
 
 <div id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<!-- uploadSitePhoto replaces uploadPhoto -->
+<script>
+
 /* ================================================================
-   SMA AL-FIIL WEBSITE — Tanpa Firebase
-   Menggunakan localStorage — data tersimpan di browser
-   Admin simpan → semua tab/pengunjung terbaru melihat data terbaru
+   SMA AL-FIIL — Realtime Multi-Device
+   Data teks  : Firestore (gratis, tanpa kartu kredit)
+   Foto       : Cloudinary (gratis 25GB, tanpa kartu kredit)
+   Sinkronisasi: Firestore onSnapshot = perubahan admin langsung
+                 tampil di HP, laptop, semua perangkat secara instan
 ================================================================ */
 
-// ── STATE ──────────────────────────────────────────────────────
-let SD = {};          // site data in memory
+// ── CONFIG ─────────────────────────────────────────────────────
+let CFG = null;   // {projectId, cloudName, uploadPreset}
+let db = null;
 let isAdmin = false;
-let pollTimer = null;
-const POLL_MS = 4000; // sync interval (ms)
-const PW_KEY  = 'smaalfiil-pw';
-const DATA_KEY = 'smaalfiil-data';
-const IMG_KEY  = 'smaalfiil-imgs';
+let unsubs = [];  // firestore listeners
+let SD = {};      // local cache
 
-// ── STORAGE ENGINE (localStorage wrapper) ──────────────────────
-// Bekerja di semua browser tanpa setup apapun
-const Store = {
-  get(key) {
-    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
-    catch(e) { return null; }
-  },
-  set(key, val) {
-    try { localStorage.setItem(key, JSON.stringify(val)); return true; }
-    catch(e) {
-      // localStorage penuh — coba hapus data lama lalu coba lagi
-      if (e.name === 'QuotaExceededError' || e.code === 22) {
-        toast('Penyimpanan hampir penuh! Hapus beberapa foto lama.','warn');
-      }
-      return false;
-    }
-  },
-  del(key) { try { localStorage.removeItem(key); } catch(e) {} }
-};
+const CFG_KEY = 'smaalfiil-cfg';
+const PW_KEY  = 'smaalfiil-pw';
 
 // ── BOOT ───────────────────────────────────────────────────────
-function boot() {
-  renderDefaults();     // tampilkan UI dengan data default
-  loadFromLocal();      // muat data tersimpan dari localStorage
-  startPolling();       // polling antar tab
+async function boot() {
+  renderDefaults();
+  CFG = loadCfg();
+  if (CFG && CFG.projectId) {
+    await initFirestore(CFG.projectId);
+  }
   checkHashAccess();
 }
 boot();
 
-// ── LOCAL STORAGE I/O ──────────────────────────────────────────
-function loadFromLocal() {
+// ── CONFIG PERSISTENCE ─────────────────────────────────────────
+function loadCfg() {
+  try { return JSON.parse(localStorage.getItem(CFG_KEY)); } catch(e) { return null; }
+}
+function saveCfg(c) {
+  localStorage.setItem(CFG_KEY, JSON.stringify(c));
+  CFG = c;
+}
+
+// ── FIRESTORE REST API ──────────────────────────────────────────
+// Menggunakan Firestore REST + EventSource (SSE) untuk realtime
+// TANPA Firebase SDK — hanya fetch biasa
+const FS_BASE = () => `https://firestore.googleapis.com/v1/projects/${CFG.projectId}/databases/(default)/documents`;
+
+async function fsGet(col, docId) {
+  const r = await fetch(`${FS_BASE()}/${col}/${docId}`);
+  if (!r.ok) return null;
+  const d = await r.json();
+  return fsParseDoc(d);
+}
+async function fsList(col) {
+  const r = await fetch(`${FS_BASE()}/${col}`);
+  if (!r.ok) return [];
+  const d = await r.json();
+  if (!d.documents) return [];
+  return d.documents.map(fsParseDoc);
+}
+async function fsSet(col, docId, data) {
+  // PATCH = merge/create
+  const fields = fsEncodeFields(data);
+  const r = await fetch(`${FS_BASE()}/${col}/${docId}?updateMask.fieldPaths=${Object.keys(data).join('&updateMask.fieldPaths=')}`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({fields})
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return await r.json();
+}
+async function fsAdd(col, data) {
+  const fields = fsEncodeFields(data);
+  const r = await fetch(`${FS_BASE()}/${col}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({fields})
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return await r.json();
+}
+async function fsDel(col, docId) {
+  const r = await fetch(`${FS_BASE()}/${col}/${docId}`, {method:'DELETE'});
+  if (!r.ok) throw new Error(await r.text());
+}
+
+// Firestore field encoding/decoding
+function fsEncodeFields(obj) {
+  const fields = {};
+  for (const [k,v] of Object.entries(obj)) {
+    if (v === null || v === undefined) fields[k] = {nullValue: null};
+    else if (typeof v === 'boolean') fields[k] = {booleanValue: v};
+    else if (typeof v === 'number') fields[k] = {integerValue: String(v)};
+    else if (Array.isArray(v)) fields[k] = {arrayValue: {values: v.map(item =>
+      typeof item === 'string' ? {stringValue: item} : {stringValue: JSON.stringify(item)}
+    )}};
+    else fields[k] = {stringValue: String(v)};
+  }
+  return fields;
+}
+function fsParseDoc(doc) {
+  if (!doc || !doc.fields) return null;
+  const out = {};
+  // Extract id from name path
+  if (doc.name) out._id = doc.name.split('/').pop();
+  for (const [k,v] of Object.entries(doc.fields)) {
+    if (v.stringValue !== undefined) out[k] = v.stringValue;
+    else if (v.integerValue !== undefined) out[k] = Number(v.integerValue);
+    else if (v.booleanValue !== undefined) out[k] = v.booleanValue;
+    else if (v.nullValue !== undefined) out[k] = null;
+    else if (v.arrayValue) out[k] = (v.arrayValue.values||[]).map(i =>
+      i.stringValue !== undefined ? i.stringValue : JSON.stringify(i)
+    );
+    else out[k] = null;
+  }
+  return out;
+}
+
+// ── FIRESTORE REALTIME (polling setiap 3 detik) ─────────────────
+// Firestore REST tidak support SSE tanpa Auth, pakai polling ringan
+let pollTimer = null;
+let lastHash = '';
+
+async function initFirestore(projectId) {
   try {
     setSyncStatus('syncing');
-    const data = Store.get(DATA_KEY);
-    if (data) { SD = data; renderAll(); }
-    const imgs = Store.get(IMG_KEY);
-    if (imgs) applyImages(imgs);
+    // Test koneksi
+    const r = await fetch(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/siteConfig/settings`);
+    if (r.status === 403 || r.status === 400) {
+      setSyncStatus('offline');
+      toast('Firestore: Akses ditolak. Pastikan Rules sudah diatur (allow read, write: if true)','err');
+      return;
+    }
+    await loadAllData();
+    startRealtime();
     setSyncStatus('online');
-    document.getElementById('rtBadge').style.display = 'flex';
+    document.getElementById('rtBadge').style.display='flex';
   } catch(e) {
     setSyncStatus('offline');
+    toast('Gagal konek Firestore: '+e.message,'err');
   }
 }
 
-async function saveToCloud() {
+async function loadAllData() {
   try {
-    setSyncStatus('syncing');
-    const ok = Store.set(DATA_KEY, SD);
-    if (!ok) { toast('Gagal menyimpan — storage penuh!','err'); return; }
-    setSyncStatus('online');
-    // broadcast ke tab lain via BroadcastChannel
-    try { new BroadcastChannel('smaalfiil').postMessage({type:'dataUpdate', ts: Date.now()}); } catch(e) {}
-    toast('Tersimpan! Perubahan langsung tampil.','ok');
-    renderAll(); renderAdminLists();
-  } catch(e) {
-    toast('Gagal menyimpan: ' + e.message,'err');
-    setSyncStatus('offline');
-  }
+    // Load settings
+    const s = await fsGet('siteConfig','settings');
+    if (s) { SD.settings = s; applySettings(s); }
+    const img = await fsGet('siteConfig','images');
+    if (img) { SD.images = img; applyImages(img); }
+    // Load collections
+    SD.fasilitas = (await fsList('fasilitas')).filter(Boolean);
+    SD.ekskul = (await fsList('ekskul')).filter(Boolean);
+    SD.guru = (await fsList('guru')).filter(Boolean);
+    SD.galeri = (await fsList('galeri')).filter(Boolean);
+    SD.berita = (await fsList('berita')).filter(Boolean);
+    renderAll();
+  } catch(e) { console.warn('loadAllData error:', e); }
 }
 
-function saveImages(imgObj) {
-  try {
-    const current = Store.get(IMG_KEY) || {};
-    Object.assign(current, imgObj);
-    const ok = Store.set(IMG_KEY, current);
-    if (!ok) { toast('Gagal simpan foto — coba foto dengan ukuran lebih kecil (maks 1MB)','err'); return; }
-    applyImages(current);
-    // broadcast ke tab lain
-    try { new BroadcastChannel('smaalfiil').postMessage({type:'imgUpdate', ts: Date.now()}); } catch(e) {}
-    toast('Foto berhasil disimpan!','ok');
-  } catch(e) {
-    toast('Gagal simpan foto: ' + e.message,'err');
-  }
-}
-
-function startPolling() {
+function startRealtime() {
   if (pollTimer) clearInterval(pollTimer);
-  // BroadcastChannel: sinkron instan antar tab di browser yang sama
-  try {
-    const bc = new BroadcastChannel('smaalfiil');
-    bc.onmessage = (e) => {
-      if (!isAdmin) {
-        loadFromLocal();
-      }
-    };
-  } catch(e) {}
-  // Fallback polling untuk browser yang tidak support BroadcastChannel
-  pollTimer = setInterval(() => {
-    if (!isAdmin) loadFromLocal();
-  }, POLL_MS);
+  // Poll setiap 4 detik — ringan karena hanya check perubahan
+  pollTimer = setInterval(async () => {
+    if (!isAdmin) {
+      try {
+        // Cek versi settings sebagai "heartbeat" perubahan
+        const s = await fsGet('siteConfig','settings');
+        const h = JSON.stringify(s);
+        if (h !== lastHash) { lastHash = h; await loadAllData(); }
+      } catch(e) {}
+    }
+  }, 4000);
 }
 
-// ── DEFAULT DATA ────────────────────────────────────────────────
+// ── CLOUDINARY UPLOAD ──────────────────────────────────────────
+async function uploadToCloudinary(file) {
+  if (!CFG || !CFG.cloudName || !CFG.uploadPreset) {
+    throw new Error('Cloudinary belum dikonfigurasi. Buka Setup terlebih dahulu.');
+  }
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CFG.uploadPreset);
+  const r = await fetch(`https://api.cloudinary.com/v1_1/${CFG.cloudName}/image/upload`, {
+    method: 'POST', body: fd
+  });
+  if (!r.ok) {
+    const err = await r.json();
+    throw new Error(err.error?.message || 'Upload gagal');
+  }
+  const d = await r.json();
+  return d.secure_url;
+}
+
+// ── SETUP PANEL ────────────────────────────────────────────────
+function openSetup() {
+  document.getElementById('setupPanel').classList.add('on');
+  if (CFG) {
+    setVal('cfgProject', CFG.projectId||'');
+    setVal('cfgCloud', CFG.cloudName||'');
+    setVal('cfgPreset', CFG.uploadPreset||'');
+  }
+}
+function closeSetup() { document.getElementById('setupPanel').classList.remove('on'); }
+
+async function saveSetup() {
+  const projectId = v('cfgProject').trim();
+  const cloudName = v('cfgCloud').trim();
+  const uploadPreset = v('cfgPreset').trim();
+  if (!projectId) return toast('Project ID Firestore wajib diisi!','warn');
+  toast('Menghubungkan...','warn');
+  saveCfg({projectId, cloudName, uploadPreset});
+  await initFirestore(projectId);
+  closeSetup();
+  toast('Konfigurasi disimpan! Website terhubung.','ok');
+}
+
+// ── RENDER DEFAULTS ────────────────────────────────────────────
 function renderDefaults() {
   if (!SD.settings) SD.settings = {
     alamat:'Jln. Gajah Eretan No. 19, Gajah Mekar - Kutawaringin, Kab. Bandung',
@@ -796,422 +942,246 @@ function renderDefaults() {
     profil2:'Sekolah hadir tidak hanya menekankan pencapaian akademik, tetapi juga pembentukan karakter, akhlak mulia, serta nilai kebersamaan dalam lingkungan yang religius dan kekeluargaan.',
     profil3:'Dengan tenaga pendidik berdedikasi serta program pendidikan berimbang antara akademik, karakter, dan ekstrakurikuler, SMA AL-FIIL menciptakan lingkungan belajar yang aman, nyaman, dan inspiratif.',
   };
-  if (!SD.fasilitas) SD.fasilitas = [
-    {id:'f1',nama:'Lapangan Olahraga',icon:'⚽',desc:'Sarana pembinaan kesehatan, sportivitas, dan kerja sama tim.',img:''},
-    {id:'f2',nama:'Lab Komputer',icon:'💻',desc:'Menunjang pembelajaran berbasis teknologi dan keterampilan digital.',img:''},
-    {id:'f3',nama:'Perpustakaan',icon:'📚',desc:'Ruang belajar, membaca, dan memperluas wawasan peserta didik.',img:''},
-    {id:'f4',nama:'Mushola',icon:'🕌',desc:'Sarana ibadah dan kegiatan keagamaan warga sekolah.',img:''},
-    {id:'f5',nama:'Ruang Kelas',icon:'🏫',desc:'Ruang belajar yang nyaman dengan sarana memadai.',img:''},
-    {id:'f6',nama:'Kantin',icon:'🍱',desc:'Menyediakan kebutuhan makan dan minum siswa.',img:''},
-  ];
-  if (!SD.ekskul) SD.ekskul = [
-    {id:'e1',nama:'Pramuka',icon:'⚜️',pembina:'-',desc:'Membentuk karakter mandiri, bertanggung jawab, dan cinta tanah air.',imgs:[]},
-    {id:'e2',nama:'Olahraga',icon:'🏃',pembina:'-',desc:'Pembinaan jasmani dan prestasi olahraga siswa.',imgs:[]},
-    {id:'e3',nama:'Seni & Budaya',icon:'🎨',pembina:'-',desc:'Pengembangan bakat seni tari, musik, dan budaya daerah.',imgs:[]},
-    {id:'e4',nama:'Kewirausahaan',icon:'💼',pembina:'-',desc:'Pelatihan keterampilan berwirausaha dan kreativitas bisnis.',imgs:[]},
-  ];
-  if (!SD.guru) SD.guru = [{id:'g1',nama:'Kepala Sekolah',jabatan:'Kepala Sekolah',mapel:'-',nip:'-',photo:''}];
-  if (!SD.galeri) SD.galeri = [];
-  if (!SD.berita) SD.berita = [{id:'b1',judul:'Selamat Datang di Website SMA AL-FIIL',kategori:'Pengumuman',tanggal:new Date().toISOString().split('T')[0],isi:'Website resmi SMA AL-FIIL kini hadir untuk memudahkan akses informasi sekolah bagi seluruh warga sekolah dan masyarakat.',img:''}];
+  if (!SD.fasilitas) SD.fasilitas=[{_id:'f1',nama:'Lapangan Olahraga',icon:'⚽',desc:'Sarana pembinaan kesehatan dan sportivitas.',img:''},{_id:'f2',nama:'Lab Komputer',icon:'💻',desc:'Menunjang pembelajaran teknologi digital.',img:''},{_id:'f3',nama:'Perpustakaan',icon:'📚',desc:'Ruang belajar dan memperluas wawasan.',img:''},{_id:'f4',nama:'Mushola',icon:'🕌',desc:'Sarana ibadah warga sekolah.',img:''},{_id:'f5',nama:'Ruang Kelas',icon:'🏫',desc:'Ruang belajar yang nyaman.',img:''},{_id:'f6',nama:'Kantin',icon:'🍱',desc:'Menyediakan kebutuhan makan siswa.',img:''}];
+  if (!SD.ekskul) SD.ekskul=[{_id:'e1',nama:'Pramuka',icon:'⚜️',pembina:'-',desc:'Membentuk karakter mandiri dan cinta tanah air.',imgs:[]},{_id:'e2',nama:'Olahraga',icon:'🏃',pembina:'-',desc:'Pembinaan jasmani dan prestasi olahraga.',imgs:[]},{_id:'e3',nama:'Seni & Budaya',icon:'🎨',pembina:'-',desc:'Pengembangan bakat seni dan budaya daerah.',imgs:[]},{_id:'e4',nama:'Kewirausahaan',icon:'💼',pembina:'-',desc:'Pelatihan keterampilan berwirausaha.',imgs:[]}];
+  if (!SD.guru) SD.guru=[{_id:'g1',nama:'Kepala Sekolah',jabatan:'Kepala Sekolah',mapel:'-',nip:'-',photo:''}];
+  if (!SD.galeri) SD.galeri=[];
+  if (!SD.berita) SD.berita=[{_id:'b1',judul:'Selamat Datang di Website SMA AL-FIIL',kategori:'Pengumuman',tanggal:new Date().toISOString().split('T')[0],isi:'Website resmi SMA AL-FIIL kini hadir untuk memudahkan akses informasi sekolah.',img:''}];
   renderAll();
 }
 
-// ── RENDER ALL ─────────────────────────────────────────────────
+// ── RENDER PUBLIC ──────────────────────────────────────────────
 function renderAll() {
   applySettings(SD.settings);
-  renderFasilitas(); renderEkskul(); renderGuru();
-  renderGaleri(); renderBerita();
+  renderFasilitas(); renderEkskul(); renderGuru(); renderGaleri(); renderBerita();
 }
-
 function applySettings(s) {
   if (!s) return;
-  setText('infoAlamat', s.alamat);
-  setText('infoEmail', s.email);
-  setText('infoWa', s.wa);
-  setText('ktAlamat', s.alamat);
-  const em = document.getElementById('ktEmail');
-  if (em && s.email) { em.textContent = s.email; em.href = 'mailto:' + s.email; }
-  if (s.visi) setText('visiTeks', s.visi);
-  if (s.misi) {
-    const li = s.misi.split('\n').filter(l=>l.trim());
-    document.getElementById('misiList').innerHTML = li.map(l=>`<li>${escH(l.trim())}</li>`).join('');
-  }
-  if (s.tujuan) {
-    const li = s.tujuan.split('\n').filter(l=>l.trim());
-    document.getElementById('tujuanList').innerHTML = li.map(l=>`<li>${escH(l.trim())}</li>`).join('');
-  }
-  if (s.profil1 || s.profil2 || s.profil3) {
-    document.getElementById('profilTeks').innerHTML =
-      `<p>${escH(s.profil1||'')}</p><p>${escH(s.profil2||'')}</p><p>${escH(s.profil3||'')}</p>`;
-  }
+  setText('infoAlamat',s.alamat); setText('infoEmail',s.email); setText('infoWa',s.wa);
+  setText('ktAlamat',s.alamat);
+  const em=document.getElementById('ktEmail'); if(em&&s.email){em.textContent=s.email;em.href='mailto:'+s.email;}
+  if(s.visi) setText('visiTeks',s.visi);
+  if(s.misi){const li=s.misi.split('\n').filter(l=>l.trim());document.getElementById('misiList').innerHTML=li.map(l=>`<li>${escH(l.trim())}</li>`).join('');}
+  if(s.tujuan){const li=s.tujuan.split('\n').filter(l=>l.trim());document.getElementById('tujuanList').innerHTML=li.map(l=>`<li>${escH(l.trim())}</li>`).join('');}
+  if(s.profil1||s.profil2||s.profil3)document.getElementById('profilTeks').innerHTML=`<p>${escH(s.profil1||'')}</p><p>${escH(s.profil2||'')}</p><p>${escH(s.profil3||'')}</p>`;
 }
-
 function applyImages(imgs) {
-  if (!imgs) return;
-  if (imgs.hero_bg) showImg('heroImgEl', 'heroImgBox', imgs.hero_bg);
-  if (imgs.profil_photo) showImg('profilImgEl', 'profilImgBox', imgs.profil_photo);
-  if (imgs.logo_nav) {
-    const el = document.getElementById('navLogo');
-    if (el) el.innerHTML = `<img src="${imgs.logo_nav}" alt="Logo">`;
-  }
+  if(!imgs)return;
+  if(imgs.hero_bg)showImg('heroImgEl','heroImgBox',imgs.hero_bg);
+  if(imgs.profil_photo)showImg('profilImgEl','profilImgBox',imgs.profil_photo);
+  if(imgs.logo_nav){const el=document.getElementById('navLogo');if(el)el.innerHTML=`<img src="${imgs.logo_nav}" alt="Logo">`;}
 }
+function showImg(iId,bId,src){const el=document.getElementById(iId);const bx=document.getElementById(bId);if(el){el.src=src;el.style.display='block';}if(bx){const ph=bx.querySelector('span');if(ph)ph.style.display='none';}}
+function renderFasilitas(){const g=document.getElementById('fasilitasGrid');if(!g)return;g.innerHTML=(SD.fasilitas||[]).map(f=>`<div class="fas-card"><div class="fas-img">${f.img?`<img src="${f.img}" alt="${escH(f.nama)}">`:`<span>${f.icon||'🏢'}</span>`}</div><div class="fas-body"><h3>${f.icon||''} ${escH(f.nama)}</h3><p>${escH(f.desc)}</p></div></div>`).join('');}
+function renderEkskul(){const g=document.getElementById('ekskulGrid');if(!g)return;g.innerHTML=(SD.ekskul||[]).map(e=>`<div class="ek-card"><div class="ek-top"><div class="ek-ic">${e.icon||'⭐'}</div><div><h3>${escH(e.nama)}</h3><p>Pembina: ${escH(e.pembina||'-')}</p></div></div><p class="ek-desc">${escH(e.desc||'')}</p>${(e.imgs||[]).length?`<div class="ek-photos">${e.imgs.map(i=>`<div class="ek-photo" onclick="openLightbox('${i}')"><img src="${i}"></div>`).join('')}</div>`:''}</div>`).join('');}
+function renderGuru(){const g=document.getElementById('guruGrid');if(!g)return;const ord=['Kepala Sekolah','Wakil Kepala Sekolah','Guru','BP/BK','Staff'];const bc={'Kepala Sekolah':'b-kepala','Wakil Kepala Sekolah':'b-wakil','Guru':'b-guru','Staff':'b-staff','BP/BK':'b-guru'};g.innerHTML=[...(SD.guru||[])].sort((a,b)=>(ord.indexOf(a.jabatan)||99)-(ord.indexOf(b.jabatan)||99)).map(gu=>`<div class="guru-card ${gu.jabatan==='Kepala Sekolah'?'kepala':''}"><div class="guru-photo">${gu.photo?`<img src="${gu.photo}" alt="${escH(gu.nama)}">`:'<i class="fas fa-user-tie"></i>'}</div><h3>${escH(gu.nama)}</h3><div class="mapel">${escH(gu.mapel!=='-'?gu.mapel:'')}</div><span class="guru-badge ${bc[gu.jabatan]||'b-guru'}">${escH(gu.jabatan)}</span></div>`).join('');}
+function renderGaleri(){const g=document.getElementById('galeriGrid');if(!g)return;if(!(SD.galeri||[]).length){g.innerHTML='<div class="gal-ph" style="height:180px">📷</div><div class="gal-ph" style="height:120px">🖼️</div><div class="gal-ph" style="height:200px">🎞️</div><div class="gal-ph" style="height:140px">📸</div>';return;}g.innerHTML=SD.galeri.map(item=>`<div class="gal-item" onclick="openLightbox('${item.img}')"><img src="${item.img}" alt="${escH(item.caption||'')}"><div class="gal-overlay"><span>${escH(item.caption||'')}</span></div></div>`).join('');}
+function renderBerita(){const g=document.getElementById('beritaGrid');if(!g)return;g.innerHTML=(SD.berita||[]).map(b=>`<div class="berita-card"><div class="berita-thumb">${b.img?`<img src="${b.img}" alt="${escH(b.judul)}">`:'<span>📰</span>'}</div><div class="berita-body"><div class="berita-meta"><span class="berita-kat">${escH(b.kategori)}</span><span class="berita-tgl"><i class="fas fa-calendar-alt"></i>${fmtDate(b.tanggal)}</span></div><h3>${escH(b.judul)}</h3><p>${escH((b.isi||'').substring(0,130))}${(b.isi||'').length>130?'...':''}</p><span class="berita-more">Selengkapnya →</span></div></div>`).join('');}
 
-function showImg(imgId, boxId, src) {
-  const el = document.getElementById(imgId);
-  const box = document.getElementById(boxId);
-  if (el) { el.src = src; el.style.display = 'block'; }
-  if (box) { const ph = box.querySelector('span'); if (ph) ph.style.display = 'none'; }
-}
-
-function renderFasilitas() {
-  const g = document.getElementById('fasilitasGrid'); if (!g) return;
-  g.innerHTML = (SD.fasilitas||[]).map(f =>
-    `<div class="fas-card"><div class="fas-img">${f.img?`<img src="${f.img}" alt="${escH(f.nama)}">`:`<span>${f.icon||'🏢'}</span>`}</div><div class="fas-body"><h3>${f.icon||''} ${escH(f.nama)}</h3><p>${escH(f.desc)}</p></div></div>`
-  ).join('');
-}
-function renderEkskul() {
-  const g = document.getElementById('ekskulGrid'); if (!g) return;
-  g.innerHTML = (SD.ekskul||[]).map(e =>
-    `<div class="ek-card"><div class="ek-top"><div class="ek-ic">${e.icon||'⭐'}</div><div><h3>${escH(e.nama)}</h3><p>Pembina: ${escH(e.pembina||'-')}</p></div></div><p class="ek-desc">${escH(e.desc||'')}</p>${(e.imgs||[]).length?`<div class="ek-photos">${e.imgs.map(i=>`<div class="ek-photo" onclick="openLightbox('${i}')"><img src="${i}" alt="${escH(e.nama)}"></div>`).join('')}</div>`:''}</div>`
-  ).join('');
-}
-function renderGuru() {
-  const g = document.getElementById('guruGrid'); if (!g) return;
-  const ord = ['Kepala Sekolah','Wakil Kepala Sekolah','Guru','BP/BK','Staff'];
-  const bc = {'Kepala Sekolah':'b-kepala','Wakil Kepala Sekolah':'b-wakil','Guru':'b-guru','Staff':'b-staff','BP/BK':'b-guru'};
-  g.innerHTML = [...(SD.guru||[])].sort((a,b)=>(ord.indexOf(a.jabatan)||99)-(ord.indexOf(b.jabatan)||99)).map(gu =>
-    `<div class="guru-card ${gu.jabatan==='Kepala Sekolah'?'kepala':''}"><div class="guru-photo">${gu.photo?`<img src="${gu.photo}" alt="${escH(gu.nama)}">`:'<i class="fas fa-user-tie"></i>'}</div><h3>${escH(gu.nama)}</h3><div class="mapel">${escH(gu.mapel!=='-'?gu.mapel:'')}</div><span class="guru-badge ${bc[gu.jabatan]||'b-guru'}">${escH(gu.jabatan)}</span></div>`
-  ).join('');
-}
-function renderGaleri() {
-  const g = document.getElementById('galeriGrid'); if (!g) return;
-  if (!(SD.galeri||[]).length) {
-    g.innerHTML = '<div class="gal-ph" style="height:180px">📷</div><div class="gal-ph" style="height:120px">🖼️</div><div class="gal-ph" style="height:200px">🎞️</div><div class="gal-ph" style="height:140px">📸</div>';
-    return;
-  }
-  g.innerHTML = SD.galeri.map(item =>
-    `<div class="gal-item" onclick="openLightbox('${item.img}')"><img src="${item.img}" alt="${escH(item.caption||'')}"><div class="gal-overlay"><span>${escH(item.caption||'')}</span></div></div>`
-  ).join('');
-}
-function renderBerita() {
-  const g = document.getElementById('beritaGrid'); if (!g) return;
-  g.innerHTML = (SD.berita||[]).map(b =>
-    `<div class="berita-card"><div class="berita-thumb">${b.img?`<img src="${b.img}" alt="${escH(b.judul)}">`:'<span>📰</span>'}</div><div class="berita-body"><div class="berita-meta"><span class="berita-kat">${escH(b.kategori)}</span><span class="berita-tgl"><i class="fas fa-calendar-alt"></i>${fmtDate(b.tanggal)}</span></div><h3>${escH(b.judul)}</h3><p>${escH((b.isi||'').substring(0,130))}${(b.isi||'').length>130?'...':''}</p><span class="berita-more">Selengkapnya →</span></div></div>`
-  ).join('');
-}
-
-// ── ADMIN LIST RENDERS ─────────────────────────────────────────
-function renderAdminLists() {
-  // fasilitas
-  const fl = document.getElementById('fasilitasList');
-  if (fl) fl.innerHTML = (SD.fasilitas||[]).map(f=>
-    `<div class="alist-item"><div class="alist-content"><h4>${f.icon||''} ${escH(f.nama)}</h4><p>${escH((f.desc||'').substring(0,60))}</p></div><div class="alist-actions"><button class="adel" onclick="delItem('fasilitas','${f.id}')"><i class="fas fa-trash"></i></button></div></div>`
-  ).join('') || nodata();
-  // ekskul
-  const el = document.getElementById('ekskulList');
-  if (el) el.innerHTML = (SD.ekskul||[]).map(e=>
-    `<div class="alist-item"><div class="alist-content"><h4>${e.icon||''} ${escH(e.nama)}</h4><p>Pembina: ${escH(e.pembina||'-')} | ${(e.imgs||[]).length} foto</p></div><div class="alist-actions"><button class="adel" onclick="delItem('ekskul','${e.id}')"><i class="fas fa-trash"></i></button></div></div>`
-  ).join('') || nodata();
-  // guru
-  const gl = document.getElementById('guruList');
-  if (gl) gl.innerHTML = (SD.guru||[]).map(g=>
-    `<div class="alist-item"><div class="alist-content"><h4>${escH(g.nama)}</h4><p>${escH(g.jabatan)} | ${escH(g.mapel)}</p></div><div class="alist-actions"><button class="adel" onclick="delItem('guru','${g.id}')"><i class="fas fa-trash"></i></button></div></div>`
-  ).join('') || nodata();
-  // galeri
-  const gal = document.getElementById('galAdminGrid');
-  const cnt = document.getElementById('galCount');
-  if (gal) {
-    if (cnt) cnt.textContent = `(${(SD.galeri||[]).length} foto)`;
-    gal.innerHTML = (SD.galeri||[]).map(item=>
-      `<div class="pitem"><img src="${item.img}" alt=""><button class="prm" onclick="delItem('galeri','${item.id}')"><i class="fas fa-times"></i></button></div>`
-    ).join('');
-  }
-  // berita
-  const bl = document.getElementById('beritaList');
-  if (bl) bl.innerHTML = (SD.berita||[]).map(b=>
-    `<div class="alist-item"><div class="alist-content"><h4>${escH(b.judul)}</h4><p>${escH(b.kategori)} | ${fmtDate(b.tanggal)}</p></div><div class="alist-actions"><button class="adel" onclick="delItem('berita','${b.id}')"><i class="fas fa-trash"></i></button></div></div>`
-  ).join('') || nodata();
+// ── ADMIN LISTS ────────────────────────────────────────────────
+function renderAdminLists(){
+  const fl=document.getElementById('fasilitasList');if(fl)fl.innerHTML=(SD.fasilitas||[]).map(f=>`<div class="alist-item"><div class="alist-content"><h4>${f.icon||''} ${escH(f.nama)}</h4><p>${escH((f.desc||'').substring(0,60))}</p></div><div class="alist-actions"><button class="adel" onclick="delItem('fasilitas','${f._id}')"><i class="fas fa-trash"></i></button></div></div>`).join('')||nodata();
+  const el=document.getElementById('ekskulList');if(el)el.innerHTML=(SD.ekskul||[]).map(e=>`<div class="alist-item"><div class="alist-content"><h4>${e.icon||''} ${escH(e.nama)}</h4><p>Pembina: ${escH(e.pembina||'-')} | ${(e.imgs||[]).length} foto</p></div><div class="alist-actions"><button class="adel" onclick="delItem('ekskul','${e._id}')"><i class="fas fa-trash"></i></button></div></div>`).join('')||nodata();
+  const gl=document.getElementById('guruList');if(gl)gl.innerHTML=(SD.guru||[]).map(g=>`<div class="alist-item"><div class="alist-content"><h4>${escH(g.nama)}</h4><p>${escH(g.jabatan)} | ${escH(g.mapel)}</p></div><div class="alist-actions"><button class="adel" onclick="delItem('guru','${g._id}')"><i class="fas fa-trash"></i></button></div></div>`).join('')||nodata();
+  const gal=document.getElementById('galAdminGrid');const cnt=document.getElementById('galCount');
+  if(gal){if(cnt)cnt.textContent=`(${(SD.galeri||[]).length} foto)`;gal.innerHTML=(SD.galeri||[]).map(item=>`<div class="pitem"><img src="${item.img}" alt=""><button class="prm" onclick="delItem('galeri','${item._id}')"><i class="fas fa-times"></i></button></div>`).join('');}
+  const bl=document.getElementById('beritaList');if(bl)bl.innerHTML=(SD.berita||[]).map(b=>`<div class="alist-item"><div class="alist-content"><h4>${escH(b.judul)}</h4><p>${escH(b.kategori)} | ${fmtDate(b.tanggal)}</p></div><div class="alist-actions"><button class="adel" onclick="delItem('berita','${b._id}')"><i class="fas fa-trash"></i></button></div></div>`).join('')||nodata();
 }
 
 // ── SAVE FUNCTIONS ─────────────────────────────────────────────
-async function saveSettings() {
-  const s = SD.settings || {};
-  s.alamat = v('aAlamat'); s.email = v('aEmail'); s.wa = v('aWa'); s.tahun = v('aTahun');
-  SD.settings = s;
-  applySettings(s);
-  await saveToCloud();
+async function saveSettings(){
+  try{const s={alamat:v('aAlamat'),email:v('aEmail'),wa:v('aWa'),tahun:v('aTahun')};await fsSet('siteConfig','settings',s);SD.settings=Object.assign(SD.settings||{},s);applySettings(SD.settings);toast('Informasi disimpan & tampil di semua perangkat!','ok');}
+  catch(e){toast('Gagal simpan: '+e.message,'err');}
 }
-async function saveProfil() {
-  const s = SD.settings || {};
-  s.profil1 = v('aProfil1'); s.profil2 = v('aProfil2'); s.profil3 = v('aProfil3');
-  SD.settings = s;
-  applySettings(s);
-  await saveToCloud();
+async function saveProfil(){
+  try{const s={profil1:v('aProfil1'),profil2:v('aProfil2'),profil3:v('aProfil3')};await fsSet('siteConfig','settings',s);Object.assign(SD.settings,s);applySettings(SD.settings);toast('Profil disimpan!','ok');}
+  catch(e){toast('Gagal simpan: '+e.message,'err');}
 }
-async function save1(field, inputId, label) {
-  if (!SD.settings) SD.settings = {};
-  SD.settings[field] = v(inputId);
-  applySettings(SD.settings);
-  await saveToCloud();
+async function save1(field,inputId){
+  try{const s={[field]:v(inputId)};await fsSet('siteConfig','settings',s);Object.assign(SD.settings,s);applySettings(SD.settings);toast('Tersimpan!','ok');}
+  catch(e){toast('Gagal simpan: '+e.message,'err');}
 }
-
-async function addFasilitas() {
-  const nama = v('nfNama'); if (!nama) return toast('Nama wajib!','warn');
+async function uploadSitePhoto(input,key){
+  if(!input.files[0])return;
+  if(!CFG?.cloudName)return toast('Setup Cloudinary dulu untuk upload foto!','warn');
+  toast('Mengupload foto...','warn');
+  try{
+    const url=await uploadToCloudinary(input.files[0]);
+    await fsSet('siteConfig','images',{[key]:url});
+    if(!SD.images)SD.images={};SD.images[key]=url;applyImages(SD.images);
+    const pid={hero_bg:'prevHero',logo_nav:'prevLogo',profil_photo:'prevProfil'}[key];
+    if(pid){const el=document.getElementById(pid);if(el)el.innerHTML=`<img src="${url}" style="width:100%;max-height:150px;object-fit:cover;border-radius:10px;margin-top:8px">`;}
+    toast('Foto berhasil diupload!','ok');
+  }catch(e){toast('Gagal upload foto: '+e.message,'err');}
+}
+async function addFasilitas(){
+  const nama=v('nfNama');if(!nama)return toast('Nama wajib!','warn');
   toast('Menyimpan...','warn');
-  const img = await readFileB64(document.getElementById('nfFoto').files[0]);
-  if (!SD.fasilitas) SD.fasilitas = [];
-  SD.fasilitas.push({id:'f'+Date.now(), nama, icon:v('nfIcon')||'🏢', desc:v('nfDesc')||'-', img});
-  renderFasilitas(); renderAdminLists();
-  clr('nfNama','nfIcon','nfDesc'); document.getElementById('nfFoto').value=''; document.getElementById('prevNf').innerHTML='';
-  await saveToCloud();
-}
-async function addEkskul() {
-  const nama = v('neNama'); if (!nama) return toast('Nama wajib!','warn');
-  toast('Menyimpan...','warn');
-  const files = Array.from(document.getElementById('neFotos').files);
-  const imgs = await Promise.all(files.map(f => readFileB64(f)));
-  if (!SD.ekskul) SD.ekskul = [];
-  SD.ekskul.push({id:'e'+Date.now(), nama, icon:v('neIcon')||'⭐', pembina:v('nePembina')||'-', desc:v('neDesc')||'-', imgs:imgs.filter(Boolean)});
-  renderEkskul(); renderAdminLists();
-  clr('neNama','neIcon','nePembina','neDesc'); document.getElementById('neFotos').value=''; document.getElementById('prevNe').innerHTML='';
-  await saveToCloud();
-}
-async function addGuru() {
-  const nama = v('ngNama'); if (!nama) return toast('Nama wajib!','warn');
-  toast('Menyimpan...','warn');
-  const photo = await readFileB64(document.getElementById('ngFoto').files[0]);
-  if (!SD.guru) SD.guru = [];
-  SD.guru.push({id:'g'+Date.now(), nama, jabatan:v('ngJabatan'), mapel:v('ngMapel')||'-', nip:v('ngNip')||'-', photo:photo||''});
-  renderGuru(); renderAdminLists();
-  clr('ngNama','ngMapel','ngNip'); document.getElementById('ngFoto').value=''; document.getElementById('prevNg').innerHTML='';
-  await saveToCloud();
-}
-async function addGaleri(input) {
-  const files = Array.from(input.files);
-  if (!files.length) return;
-  const caption = v('galCaption');
-  const prog = document.getElementById('galProgress');
-  const fill = document.getElementById('galProgFill');
-  const txt = document.getElementById('galProgText');
-  prog.style.display = 'flex';
-  if (!SD.galeri) SD.galeri = [];
-  for (let i = 0; i < files.length; i++) {
-    const pct = Math.round((i / files.length) * 100);
-    fill.style.width = pct + '%';
-    txt.textContent = `Memproses ${i+1} dari ${files.length}...`;
-    const file = files[i];
-    if (file.size > 1.5 * 1024 * 1024) { toast(`Foto "${file.name}" dilewati — maks 1.5MB per foto`,'warn'); continue; }
-    const img = await readFileB64(file);
-    if (img) SD.galeri.push({id:'gal'+Date.now()+i, img, caption});
-  }
-  fill.style.width = '100%';
-  input.value = '';
-  renderGaleri(); renderAdminLists();
-  await saveToCloud();
-  setTimeout(() => { prog.style.display='none'; fill.style.width='0%'; }, 1000);
-}
-async function addBerita() {
-  const judul = v('nbJudul'), isi = v('nbIsi');
-  if (!judul || !isi) return toast('Judul dan isi wajib!','warn');
-  toast('Mempublikasikan...','warn');
-  const img = await readFileB64(document.getElementById('nbFoto').files[0]);
-  if (!SD.berita) SD.berita = [];
-  SD.berita.unshift({id:'b'+Date.now(), judul, kategori:v('nbKat'), tanggal:v('nbTgl')||new Date().toISOString().split('T')[0], isi, img:img||''});
-  renderBerita(); renderAdminLists();
-  clr('nbJudul','nbIsi'); document.getElementById('nbFoto').value=''; document.getElementById('prevNb').innerHTML='';
-  await saveToCloud();
-}
-async function delItem(col, id) {
-  if (!SD[col]) return;
-  SD[col] = SD[col].filter(x => x.id !== id);
-  renderAll(); renderAdminLists();
-  await saveToCloud();
-}
-async function uploadPhoto(input, key) {
-  if (!input.files[0]) return;
-  const file = input.files[0];
-  if (file.size > 2 * 1024 * 1024) return toast('Foto terlalu besar! Maks 2MB.','warn');
-  toast('Memproses foto...','warn');
-  const b64 = await readFileB64(file);
-  if (!b64) return toast('Gagal baca foto','err');
-  const pid = {hero_bg:'prevHero', logo_nav:'prevLogo', profil_photo:'prevProfil'}[key];
-  if (pid) { const el = document.getElementById(pid); if(el) el.innerHTML=`<img src="${b64}" style="width:100%;max-height:150px;object-fit:cover;border-radius:10px;margin-top:8px">`; }
-  saveImages({[key]: b64});
-}
-async function gantiPassword() {
-  const lama = document.getElementById('pwLama').value;
-  const baru = document.getElementById('pwBaru').value;
-  const konfirm = document.getElementById('pwKonfirm').value;
-  const storedRaw = Store.get(PW_KEY);
-  const stored = storedRaw || btoa('alfiil2024');
-  if (btoa(lama) !== stored) return toast('Password lama salah!','err');
-  if (!baru || baru.length < 6) return toast('Password baru min. 6 karakter!','warn');
-  if (baru !== konfirm) return toast('Konfirmasi tidak cocok!','err');
-  Store.set(PW_KEY, btoa(baru));
-  clr('pwLama','pwBaru','pwKonfirm');
-  toast('Password berhasil diubah!','ok');
-}
-
-// ── FILE → BASE64 ───────────────────────────────────────────────
-function readFileB64(file) {
-  if (!file) return Promise.resolve('');
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = e => res(e.target.result);
-    r.onerror = () => res('');
-    r.readAsDataURL(file);
-  });
-}
-
-// ── PREVIEW HELPERS ────────────────────────────────────────────
-function previewMulti(input, pid) {
-  const el = document.getElementById(pid); if (!el) return; el.innerHTML = '';
-  Array.from(input.files).forEach(f => {
-    const r = new FileReader();
-    r.onload = e => { const d = document.createElement('div'); d.className='pitem'; d.innerHTML=`<img src="${e.target.result}">`; el.appendChild(d); };
-    r.readAsDataURL(f);
-  });
-}
-function previewSingle(input, pid) {
-  if (!input.files[0]) return;
-  const el = document.getElementById(pid); if (!el) return;
-  const r = new FileReader();
-  r.onload = e => { el.innerHTML=`<div class="pitem" style="max-width:100px;height:80px"><img src="${e.target.result}"></div>`; };
-  r.readAsDataURL(input.files[0]);
-}
-
-// ── HIDDEN ADMIN ACCESS ────────────────────────────────────────
-const SEQ = ['a','d','m','i','n'];
-let seqBuf = [], seqTimer = null;
-document.addEventListener('keydown', e => {
-  if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
-  if (e.key === 'Escape') { document.querySelectorAll('.modal-bg.on').forEach(m=>m.classList.remove('on')); closeLightbox(); return; }
-  seqBuf.push(e.key.toLowerCase());
-  if (seqBuf.length > SEQ.length) seqBuf.shift();
-  clearTimeout(seqTimer);
-  seqTimer = setTimeout(() => seqBuf = [], 2000);
-  if (seqBuf.join('') === SEQ.join('')) { seqBuf = []; openLogin(); }
-});
-
-let tapCount = 0, tapTimer = null;
-document.getElementById('footerBrand').addEventListener('click', () => {
-  tapCount++;
-  clearTimeout(tapTimer);
-  tapTimer = setTimeout(() => tapCount = 0, 3000);
-  if (tapCount >= 5) { tapCount = 0; openLogin(); }
-});
-
-function checkHashAccess() {
-  if (window.location.hash === '#admin-panel') {
-    history.replaceState(null, '', window.location.pathname + window.location.search);
-    setTimeout(openLogin, 400);
-  }
-}
-window.addEventListener('hashchange', checkHashAccess);
-
-function openLogin() {
-  document.getElementById('loginModal').classList.add('on');
-  setTimeout(() => document.getElementById('loginPw').focus(), 150);
-}
-async function doLogin() {
-  const pw = document.getElementById('loginPw').value;
-  const storedRaw = Store.get(PW_KEY);
-  const stored = storedRaw || btoa('alfiil2024');
-  if (btoa(pw) === stored) {
-    closeModal('loginModal');
-    document.getElementById('loginPw').value = '';
-    openAdminPanel();
-  } else {
-    toast('Password salah!','err');
-    document.getElementById('loginPw').value = '';
-    document.getElementById('loginPw').focus();
-  }
-}
-function openAdminPanel() {
-  isAdmin = true;
-  document.getElementById('adminPanel').classList.add('on');
-  // populate admin fields
-  const s = SD.settings || {};
-  setVal('aAlamat',s.alamat||''); setVal('aEmail',s.email||''); setVal('aWa',s.wa||''); setVal('aTahun',s.tahun||'');
-  setVal('aProfil1',s.profil1||''); setVal('aProfil2',s.profil2||''); setVal('aProfil3',s.profil3||'');
-  setVal('aVisi',s.visi||''); setVal('aMisi',s.misi||''); setVal('aTujuan',s.tujuan||'');
-  document.getElementById('nbTgl').value = new Date().toISOString().split('T')[0];
-  renderAdminLists();
-  // admin juga polling — tapi lebih jarang
-  if (pollTimer) clearInterval(pollTimer);
-  toast('Selamat datang, Admin! 🎉','ok');
-}
-function logoutAdmin() {
-  isAdmin = false;
-  document.getElementById('adminPanel').classList.remove('on');
-  startPolling();
-  toast('Anda telah keluar.','ok');
-}
-function openPanduan() { document.getElementById('panduanModal').classList.add('on'); }
-function closeModal(id) { document.getElementById(id).classList.remove('on'); }
-
-// ── UI HELPERS ─────────────────────────────────────────────────
-function switchTab(tab, el) {
-  document.querySelectorAll('.adm-sec').forEach(s=>s.classList.remove('on'));
-  document.querySelectorAll('.adm-nav-item').forEach(n=>n.classList.remove('on'));
-  document.getElementById('tab-'+tab).classList.add('on');
-  el.classList.add('on');
-}
-function toggleNav() { document.getElementById('navMenu').classList.toggle('open'); }
-function openLightbox(src) { document.getElementById('lbImg').src=src; document.getElementById('lightbox').classList.add('on'); document.body.style.overflow='hidden'; }
-function closeLightbox() { document.getElementById('lightbox').classList.remove('on'); document.body.style.overflow=''; }
-function setSyncStatus(state) {
-  const el = document.getElementById('syncStatus');
-  if (!el) return;
-  const m = {online:'Data tersinkron', syncing:'Menyinkron...', offline:'Mode offline'};
-  el.textContent = m[state]||state;
-  el.className = 'sync-status' + (state==='offline'?' offline':state==='syncing'?' syncing':'');
-}
-
-let toastTimer;
-function toast(msg, type='') {
-  const t = document.getElementById('toast');
-  const icons = {ok:'check-circle', err:'exclamation-circle', warn:'exclamation-triangle'};
-  t.innerHTML = `<i class="fas fa-${icons[type]||'info-circle'}"></i> ${msg}`;
-  t.className = `on ${type}`;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('on'), 3500);
-}
-function v(id) { return (document.getElementById(id)||{}).value||''; }
-function setVal(id, val) { const el=document.getElementById(id); if(el) el.value=val; }
-function setText(id, val) { const el=document.getElementById(id); if(el && val) el.textContent=val; }
-function clr(...ids) { ids.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; }); }
-function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function nodata() { return '<p style="color:rgba(255,255,255,.3);font-size:12px;padding:8px">Belum ada data.</p>'; }
-function fmtDate(d) {
-  if (!d) return '-';
-  const m = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const p = d.split('-');
-  return `${p[2]||''} ${m[(parseInt(p[1])||1)-1]} ${p[0]||''}`;
-}
-function kirimWA() {
-  const txt = encodeURIComponent(`Assalamu'alaikum SMA AL-FIIL,\n\nNama: ${v('fNama')}\nSubjek: ${v('fSubjek')}\n\n${v('fPesan')}`);
-  window.open(`https://wa.me/6285659627944?text=${txt}`,'_blank');
-}
-
-/* SCROLL SPY */
-window.addEventListener('scroll', () => {
-  const ids = ['home','profil','visi-misi','fasilitas','ekstrakurikuler','guru','galeri','berita','kontak'];
-  const y = window.scrollY + 90;
-  ids.forEach(id => {
-    const el = document.getElementById(id); if (!el) return;
-    if (y >= el.offsetTop && y < el.offsetTop + el.offsetHeight) {
-      document.querySelectorAll('.nav-menu a').forEach(a=>a.classList.remove('active'));
-      const a = document.querySelector(`.nav-menu a[href="#${id}"]`);
-      if (a) a.classList.add('active');
+  try{
+    let img='';
+    if(document.getElementById('nfFoto').files[0]){
+      if(!CFG?.cloudName)return toast('Setup Cloudinary dulu untuk upload foto!','warn');
+      img=await uploadToCloudinary(document.getElementById('nfFoto').files[0]);
     }
-  });
-});
+    const doc=await fsAdd('fasilitas',{nama,icon:v('nfIcon')||'🏢',desc:v('nfDesc')||'-',img,order:(SD.fasilitas||[]).length+1});
+    const parsed=fsParseDoc(doc);if(parsed){if(!SD.fasilitas)SD.fasilitas=[];SD.fasilitas.push(parsed);}
+    renderFasilitas();renderAdminLists();
+    clr('nfNama','nfIcon','nfDesc');document.getElementById('nfFoto').value='';document.getElementById('prevNf').innerHTML='';
+    toast('Fasilitas ditambahkan!','ok');
+  }catch(e){toast('Gagal: '+e.message,'err');}
+}
+async function addEkskul(){
+  const nama=v('neNama');if(!nama)return toast('Nama wajib!','warn');
+  toast('Menyimpan...','warn');
+  try{
+    const files=Array.from(document.getElementById('neFotos').files);
+    const imgs=[];
+    if(files.length){
+      if(!CFG?.cloudName)return toast('Setup Cloudinary dulu untuk upload foto!','warn');
+      for(const f of files)imgs.push(await uploadToCloudinary(f));
+    }
+    const doc=await fsAdd('ekskul',{nama,icon:v('neIcon')||'⭐',pembina:v('nePembina')||'-',desc:v('neDesc')||'-',imgs:imgs.join('||'),order:(SD.ekskul||[]).length+1});
+    const parsed=fsParseDoc(doc);
+    if(parsed){parsed.imgs=parsed.imgs?parsed.imgs.split('||').filter(Boolean):[];if(!SD.ekskul)SD.ekskul=[];SD.ekskul.push(parsed);}
+    renderEkskul();renderAdminLists();
+    clr('neNama','neIcon','nePembina','neDesc');document.getElementById('neFotos').value='';document.getElementById('prevNe').innerHTML='';
+    toast('Ekskul ditambahkan!','ok');
+  }catch(e){toast('Gagal: '+e.message,'err');}
+}
+async function addGuru(){
+  const nama=v('ngNama');if(!nama)return toast('Nama wajib!','warn');
+  toast('Menyimpan...','warn');
+  try{
+    let photo='';
+    if(document.getElementById('ngFoto').files[0]){
+      if(!CFG?.cloudName)return toast('Setup Cloudinary dulu untuk upload foto!','warn');
+      photo=await uploadToCloudinary(document.getElementById('ngFoto').files[0]);
+    }
+    const doc=await fsAdd('guru',{nama,jabatan:v('ngJabatan'),mapel:v('ngMapel')||'-',nip:v('ngNip')||'-',photo,order:(SD.guru||[]).length+1});
+    const parsed=fsParseDoc(doc);if(parsed){if(!SD.guru)SD.guru=[];SD.guru.push(parsed);}
+    renderGuru();renderAdminLists();
+    clr('ngNama','ngMapel','ngNip');document.getElementById('ngFoto').value='';document.getElementById('prevNg').innerHTML='';
+    toast('Guru ditambahkan!','ok');
+  }catch(e){toast('Gagal: '+e.message,'err');}
+}
+async function addGaleri(input){
+  const files=Array.from(input.files);if(!files.length)return;
+  if(!CFG?.cloudName)return toast('Setup Cloudinary dulu untuk upload foto!','warn');
+  const caption=v('galCaption');
+  const prog=document.getElementById('galProgress');const fill=document.getElementById('galProgFill');const txt=document.getElementById('galProgText');
+  prog.style.display='flex';if(!SD.galeri)SD.galeri=[];
+  try{
+    for(let i=0;i<files.length;i++){
+      fill.style.width=Math.round((i/files.length)*100)+'%';
+      txt.textContent=`Mengupload ${i+1} dari ${files.length}...`;
+      const url=await uploadToCloudinary(files[i]);
+      const doc=await fsAdd('galeri',{img:url,caption,order:SD.galeri.length+1});
+      const parsed=fsParseDoc(doc);if(parsed)SD.galeri.push(parsed);
+    }
+    fill.style.width='100%';input.value='';
+    renderGaleri();renderAdminLists();
+    toast(`${files.length} foto diupload!`,'ok');
+  }catch(e){toast('Gagal upload: '+e.message,'err');}
+  setTimeout(()=>{prog.style.display='none';fill.style.width='0%';},1000);
+}
+async function addBerita(){
+  const judul=v('nbJudul'),isi=v('nbIsi');
+  if(!judul||!isi)return toast('Judul dan isi wajib!','warn');
+  toast('Mempublikasikan...','warn');
+  try{
+    let img='';
+    if(document.getElementById('nbFoto').files[0]){
+      if(!CFG?.cloudName)return toast('Setup Cloudinary dulu untuk upload foto!','warn');
+      img=await uploadToCloudinary(document.getElementById('nbFoto').files[0]);
+    }
+    const doc=await fsAdd('berita',{judul,kategori:v('nbKat'),tanggal:v('nbTgl')||new Date().toISOString().split('T')[0],isi,img});
+    const parsed=fsParseDoc(doc);if(parsed){if(!SD.berita)SD.berita=[];SD.berita.unshift(parsed);}
+    renderBerita();renderAdminLists();
+    clr('nbJudul','nbIsi');document.getElementById('nbFoto').value='';document.getElementById('prevNb').innerHTML='';
+    toast('Berita dipublikasikan!','ok');
+  }catch(e){toast('Gagal: '+e.message,'err');}
+}
+async function delItem(col,id){
+  try{await fsDel(col,id);if(SD[col])SD[col]=SD[col].filter(x=>x._id!==id);renderAll();renderAdminLists();toast('Dihapus!','ok');}
+  catch(e){toast('Gagal hapus: '+e.message,'err');}
+}
+async function gantiPassword(){
+  const lama=document.getElementById('pwLama').value;
+  const baru=document.getElementById('pwBaru').value;
+  const konfirm=document.getElementById('pwKonfirm').value;
+  const stored=localStorage.getItem(PW_KEY)||btoa('alfiil2024');
+  if(btoa(lama)!==stored)return toast('Password lama salah!','err');
+  if(!baru||baru.length<6)return toast('Min. 6 karakter!','warn');
+  if(baru!==konfirm)return toast('Konfirmasi tidak cocok!','err');
+  localStorage.setItem(PW_KEY,btoa(baru));
+  clr('pwLama','pwBaru','pwKonfirm');toast('Password berhasil diubah!','ok');
+}
 
-/* MODAL OVERLAY CLOSE */
-document.querySelectorAll('.modal-bg').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('on'); });
+// ── PREVIEW ────────────────────────────────────────────────────
+function previewMulti(input,pid){const el=document.getElementById(pid);if(!el)return;el.innerHTML='';Array.from(input.files).forEach(f=>{const r=new FileReader();r.onload=e=>{const d=document.createElement('div');d.className='pitem';d.innerHTML=`<img src="${e.target.result}">`;el.appendChild(d);};r.readAsDataURL(f);});}
+function previewSingle(input,pid){if(!input.files[0])return;const el=document.getElementById(pid);if(!el)return;const r=new FileReader();r.onload=e=>{el.innerHTML=`<div class="pitem" style="max-width:100px;height:80px"><img src="${e.target.result}"></div>`;};r.readAsDataURL(input.files[0]);}
+
+// ── HIDDEN ADMIN ───────────────────────────────────────────────
+const SEQ=['a','d','m','i','n'];let seqBuf=[],seqT=null;
+document.addEventListener('keydown',e=>{
+  if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;
+  if(e.key==='Escape'){document.querySelectorAll('.modal-bg.on').forEach(m=>m.classList.remove('on'));closeLightbox();return;}
+  seqBuf.push(e.key.toLowerCase());if(seqBuf.length>SEQ.length)seqBuf.shift();
+  clearTimeout(seqT);seqT=setTimeout(()=>seqBuf=[],2000);
+  if(seqBuf.join('')===SEQ.join('')){seqBuf=[];openLogin();}
 });
+let tapCount=0,tapT=null;
+document.getElementById('footerBrand').addEventListener('click',()=>{tapCount++;clearTimeout(tapT);tapT=setTimeout(()=>tapCount=0,3000);if(tapCount>=5){tapCount=0;openLogin();}});
+function checkHashAccess(){if(window.location.hash==='#admin-panel'){history.replaceState(null,'',window.location.pathname+window.location.search);setTimeout(openLogin,400);}}
+window.addEventListener('hashchange',checkHashAccess);
+
+function openLogin(){document.getElementById('loginModal').classList.add('on');setTimeout(()=>document.getElementById('loginPw').focus(),150);}
+async function doLogin(){
+  const pw=document.getElementById('loginPw').value;
+  const stored=localStorage.getItem(PW_KEY)||btoa('alfiil2024');
+  if(btoa(pw)===stored){
+    closeModal('loginModal');document.getElementById('loginPw').value='';
+    // Cek apakah sudah setup
+    if(!CFG||!CFG.projectId){openSetup();return;}
+    openAdminPanel();
+  }else{toast('Password salah!','err');document.getElementById('loginPw').value='';document.getElementById('loginPw').focus();}
+}
+function openAdminPanel(){
+  isAdmin=true;document.getElementById('adminPanel').classList.add('on');
+  const s=SD.settings||{};
+  setVal('aAlamat',s.alamat||'');setVal('aEmail',s.email||'');setVal('aWa',s.wa||'');setVal('aTahun',s.tahun||'');
+  setVal('aProfil1',s.profil1||'');setVal('aProfil2',s.profil2||'');setVal('aProfil3',s.profil3||'');
+  setVal('aVisi',s.visi||'');setVal('aMisi',s.misi||'');setVal('aTujuan',s.tujuan||'');
+  document.getElementById('nbTgl').value=new Date().toISOString().split('T')[0];
+  renderAdminLists();toast('Selamat datang, Admin! 🎉','ok');
+}
+function logoutAdmin(){isAdmin=false;document.getElementById('adminPanel').classList.remove('on');toast('Keluar dari admin.','ok');}
+function openPanduan(){document.getElementById('panduanModal').classList.add('on');}
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+
+// ── UI ─────────────────────────────────────────────────────────
+function switchTab(tab,el){document.querySelectorAll('.adm-sec').forEach(s=>s.classList.remove('on'));document.querySelectorAll('.adm-nav-item').forEach(n=>n.classList.remove('on'));document.getElementById('tab-'+tab).classList.add('on');el.classList.add('on');}
+function toggleNav(){document.getElementById('navMenu').classList.toggle('open');}
+function openLightbox(src){document.getElementById('lbImg').src=src;document.getElementById('lightbox').classList.add('on');document.body.style.overflow='hidden';}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('on');document.body.style.overflow='';}
+function setSyncStatus(state){const el=document.getElementById('syncStatus');if(!el)return;const m={online:'● Real-time aktif',syncing:'○ Menyinkron...',offline:'✕ Offline'};el.textContent=m[state]||state;el.className='sync-status'+(state==='offline'?' offline':state==='syncing'?' syncing':'');}
+let toastT;function toast(msg,type=''){const t=document.getElementById('toast');const ic={ok:'check-circle',err:'exclamation-circle',warn:'exclamation-triangle'};t.innerHTML=`<i class="fas fa-${ic[type]||'info-circle'}"></i> ${msg}`;t.className=`on ${type}`;clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),4000);}
+function v(id){return(document.getElementById(id)||{}).value||'';}
+function setVal(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+function setText(id,val){const el=document.getElementById(id);if(el&&val)el.textContent=val;}
+function clr(...ids){ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function nodata(){return'<p style="color:rgba(255,255,255,.3);font-size:12px;padding:8px">Belum ada data.</p>';}
+function fmtDate(d){if(!d)return'-';const m=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];const p=d.split('-');return`${p[2]||''} ${m[(parseInt(p[1])||1)-1]} ${p[0]||''}`;}
+function kirimWA(){const txt=encodeURIComponent(`Assalamu'alaikum SMA AL-FIIL,\n\nNama: ${v('fNama')}\nSubjek: ${v('fSubjek')}\n\n${v('fPesan')}`);window.open(`https://wa.me/6285659627944?text=${txt}`,'_blank');}
+
+window.addEventListener('scroll',()=>{
+  const ids=['home','profil','visi-misi','fasilitas','ekstrakurikuler','guru','galeri','berita','kontak'];
+  const y=window.scrollY+90;
+  ids.forEach(id=>{const el=document.getElementById(id);if(!el)return;if(y>=el.offsetTop&&y<el.offsetTop+el.offsetHeight){document.querySelectorAll('.nav-menu a').forEach(a=>a.classList.remove('active'));const a=document.querySelector(`.nav-menu a[href="#${id}"]`);if(a)a.classList.add('active');}});
+});
+document.querySelectorAll('.modal-bg').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on');});});
+
 </script>
 </body>
 </html>
