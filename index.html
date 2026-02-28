@@ -1185,3 +1185,41 @@ document.querySelectorAll('.modal-bg').forEach(m=>{m.addEventListener('click',e=
 </script>
 </body>
 </html>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient(
+  'SUPABASE_URL',
+  'SUPABASE_ANON_KEY'
+)
+
+async function loadData() {
+  const { data } = await supabase
+    .from('website')
+    .select('*')
+
+  data.forEach(item => {
+    if(item.id === 'pengumuman'){
+      document.getElementById("pengumuman").innerText = item.isi
+    }
+    if(item.id === 'banner'){
+      document.getElementById("banner").src = item.url
+    }
+  })
+}
+
+loadData()
+
+// Realtime listener
+supabase
+  .channel('realtime')
+  .on('postgres_changes', 
+      { event: '*', schema: 'public', table: 'website' },
+      payload => {
+        loadData()
+      }
+  )
+  .subscribe()
+</script>
+<h2 id="pengumuman"></h2>
+<img id="banner" width="100%">
